@@ -1,0 +1,19 @@
+name: modis-cosp-data
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.9
+  - numpy
+  - pandas
+  - xarray
+  - netcdf4
+  - zarr
+  - matplotlib
+  - colorcet
+  - seaborn
+  - cartopy
+  - jupyter 
+  - jupytext
+variables:
+  FIGURE_DIR: .
