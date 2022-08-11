@@ -37,4 +37,7 @@ conda activate modis-cosp-data
 # Reproducing figures from the description paper
 
 Figures from the data description paper can be generated from the post-processed data 
-(or a subset containing July 2021) 
+(or a subset containing July 2021) with the Jupyter notebook `MODIS-COSP-Data-Paper-Figures.md`. 
+The notebook is saved in the compact [Jupytext](https://jupytext.readthedocs.io) format, which 
+is installed via `environment.yml`. Starting the Jupyter notebook and setting variables 
+`figDir` and `dataDir` should reproduce the figures. 
