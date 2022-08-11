@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# Download the set of MODIS COSP data. 
+# Download the entire monthly MODIS COSP data plus one example daily file 
 #   This shell script is based on the wget script shown at https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/62/MCD06COSP_M3_MODIS/
 #   under "See wget script"
 #   The data distribution servers require user registration and a token from the 
@@ -18,6 +18,12 @@
 #  See Pincus et al, 2022: Updated observations of clouds by MODIS for global model assessment
 #    (https://crew.ldeo.columbia.edu/people/robert-pincus/)
 #
+# Sample daily file
+wget -e robots=off -m -nv -np -R .html,.tmp,.csv,.json -nd --cut-dirs=1 \
+   "https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/62/MCD06COSP_D3_MODIS/2021/196/" \
+   --header "Authorization: Bearer ${EARTHDATA_TOKEN}" -P ${MODIS_DATA_CACHE_DIR}
+
+# All monthly files, year-by-year 
 for yr in {2002..2022..1}
 do
   echo "Downloading $yr"
