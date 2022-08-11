@@ -1,8 +1,8 @@
 This repository contains Python scripts for manipulating the 
-(monthly data)[https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MCD06COSP_M3_MODIS] produced 
+[monthly data](https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MCD06COSP_M3_MODIS) produced 
 by the MODIS cloud group in support of the MODIS simulator for climate models. The data are described in  
 Pincus et al, 2022: Updated observations of clouds by MODIS for global model assessment, available at 
-(https://crew.ldeo.columbia.edu/people/robert-pincus/)
+https://crew.ldeo.columbia.edu/people/robert-pincus/
 
 The data record available at the time of this writing extends from July 2002 to May 2022. 
 
@@ -26,3 +26,15 @@ for a range of dates (by default, the entire data record) to produce time series
 and properly-normalized joint histograms, which can be written to netCDF files and/or a Zarr store 
 (both are enabled by default). The original data are taken from `MODIS_DATA_CACHE_DIR`; the revised 
 files are written to the local directory. 
+
+Python scripts rely on the modules listed in `environment.yml`. These may be installed with 
+[conda](https://docs.conda.io/): 
+```
+conda env create -f environment.yml
+conda activate modis-cosp-data
+``` 
+
+# Reproducing figures from the description paper
+
+Figures from the data description paper can be generated from the post-processed data 
+(or a subset containing July 2021) 
