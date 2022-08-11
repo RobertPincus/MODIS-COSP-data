@@ -23,7 +23,6 @@ write_netcdf = True
 write_zarr   = True 
 
 dates = pd.date_range("2002-07-01", "2022-05-01", freq="MS")  # "MS" for "month start"
-dates = pd.date_range("2021-01-01", "2021-12-01", freq="MS")  # "MS" for "month start"
 cacheDir = Path(os.environ['MODIS_DATA_CACHE_DIR'])
 
 #
