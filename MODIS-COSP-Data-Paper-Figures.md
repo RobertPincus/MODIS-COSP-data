@@ -18,6 +18,7 @@ kernelspec:
 import datetime
 import re 
 import copy
+import os
 
 import xarray as xr
 import numpy as np
@@ -60,8 +61,8 @@ def global_mean(ds):
 ```
 
 ```{code-cell} ipython3
-figDir  = pathlib.Path("../")
-dataDir = pathlib.Path("/Users/robert/Codes/MODIS-COSP-Data")
+figDir  = pathlib.Path(os.environ['FIGURE_DIR'])
+dataDir = pathlib.Path("data-processed")
 # original data - needed only to show the number of observations per day/month
 cacheDir = pathlib.Path("modis-data-original")
 sample_month = "2021-07-01"
@@ -111,7 +112,6 @@ fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Nu
 if saveFigs: 
     # fig.savefig(figDir.joinpath("Observation-numbers.pdf"), dpi=600, transparent=True, bbox_inches = "tight")
     fig.savefig(figDir.joinpath("Observation-numbers.png"), dpi=150, transparent=True, bbox_inches = "tight")
-
 ```
 
 # An example month  - Juy 2021
