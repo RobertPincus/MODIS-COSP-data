@@ -62,20 +62,65 @@ def global_mean(ds):
 ```{code-cell} ipython3
 figDir  = pathlib.Path("../")
 dataDir = pathlib.Path("/Users/robert/Codes/MODIS-COSP-Data")
+# original data - needed only to show the number of observations per day/month
+cacheDir = pathlib.Path("modis-data-original")
 sample_month = "2021-07-01"
 ```
 
 # Pixel counts - one day, one month
 
-These will require access to/download two example files.
+Access the raw files in environment variable `MODIS_DATA_CACHE_DIR`
 
-+++
+```{code-cell} ipython3
+#
+# When using raw files the lat/lon information is at the top level and each variable
+#   in it's own group; we have to associate the position information by hand 
+#
+def read_one_group(filename, groupname): 
+    ''' Access the variables from a single group including location information  
+        Fields need to be transposed (.T) before plotting geographically '''
+    f = xr.open_dataset(filename, engine="netcdf4", group=groupname)
+    f["latitude"]  = xr.open_dataset(filename, engine="netcdf4").latitude
+    f["longitude"] = xr.open_dataset(filename, engine="netcdf4").longitude
+    return(f)
 
-# Cloud mask and retrieval fractions
+
+sns.set_context("paper")
+fig = plt.figure(figsize = (12, 9))
+axes = fig.subplots(nrows=2, subplot_kw={'projection': map_projection()})
+
+example_daily_file   = [f for f in cacheDir.glob("MCD06COSP_D3_MODIS.A2021196*")][0]
+example_monthly_file = [f for f in cacheDir.glob("MCD06COSP_M3_MODIS.A2021182*")][0]
+# One day 
+daily   = read_one_group(example_daily_file,   "Cloud_Mask_Fraction")
+pl = daily.Pixel_Counts.T.plot(ax = axes[0], 
+                               transform=ccrs.PlateCarree(),
+                               add_colorbar=False)
+axes[0].set_title("Number of observations, July 15 2021")
+
+# One month 
+
+monthly = read_one_group(example_monthly_file, "Cloud_Mask_Fraction")
+norm = monthly.Pixel_Counts/31.
+pl = norm.T.plot(ax = axes[1], 
+                 transform=ccrs.PlateCarree(),
+                 add_colorbar=False)
+axes[1].set_title("Average daily observations, July 2021")
+fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Number of observations/day")
+
+if saveFigs: 
+    # fig.savefig(figDir.joinpath("Observation-numbers.pdf"), dpi=600, transparent=True, bbox_inches = "tight")
+    fig.savefig(figDir.joinpath("Observation-numbers.png"), dpi=150, transparent=True, bbox_inches = "tight")
+
+```
+
+# An example month  - Juy 2021
 
 ```{code-cell} ipython3
 month = xr.open_dataset(dataDir.joinpath("modis-cosp-scalars.nc"), engine="netcdf4").sel(date=sample_month)
 ```
+
+# Cloud mask and retrieval fractions
 
 ```{code-cell} ipython3
 sns.set_context("paper")
@@ -256,25 +301,7 @@ if saveFigs:
     fig.savefig(figDir.joinpath("Cloud-optical-thickness.png"), dpi=150, transparent=True, bbox_inches = "tight")
 ```
 
-# How to compute a global-mean joint histogram
-
-+++
-
-# Then make three joint histogram figures
-
-```{code-cell} ipython3
-s = "" 
-v = "Total"
-hname = f"Cloud_Optical_Thickness{s}_{v}_vs_Cloud_Top_Pressure"
-fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
-hname = f"Cloud_Optical_Thickness{s}_{v}_vs_Cloud_Top_Pressure"
-fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
-gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
-# Normalize the color bar to the figure with the biggest cloud fractions 
-if v == "Total" and s == "": vmax = np.max(gmh[hname])
-    
-vmax
-```
+# Joint histogram figures
 
 ```{code-cell} ipython3
 sns.set_context("paper")
@@ -409,7 +436,7 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         #
         # Simplified axis label
         #
-        axes[r, i].set_xlabel(tau_var.replace("bin_boundaries", "").replace("_", " ").replace("pcl ", ""))
+        axes[r, i].set_xlabel(tau_var.replace("bnds", "").replace("_", " ").replace("pcl ", ""))
         tau_bnds = gmh[tau_var] 
         axes[r, i].set_xticks(np.arange(len(tau_bnds))-.5)
         axes[r, i].set_xticklabels(tau_bnds.values)
@@ -417,7 +444,7 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         # y axis labels - need separately for each column 
         #
         jnt_var  = [           k for k in gmh.coords if "cloud_particle"     in k  and "bnds" in k][0]
-        axes[r, i].set_ylabel(jnt_var.replace("bin_boundaries", "").replace("_", " ").replace(" pcl", ""))
+        axes[r, i].set_ylabel(jnt_var.replace("bnds", "").replace("_", " ").replace(" pcl", ""))
         jnt_bnds = gmh[jnt_var] 
         axes[r, i].set_yticks(np.arange(len(jnt_bnds))-.5)
         axes[r, i].set_yticklabels(jnt_bnds.values)
@@ -432,8 +459,4 @@ axes[0,1].annotate("Partly-cloudy", (4,5))
 fig.tight_layout()
 fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Cloud fraction")
 fig.savefig(figDir.joinpath("LWP-re-histograms.pdf"), dpi=600, transparent=True, bbox_inches = "tight")
-```
-
-```{code-cell} ipython3
-
 ```
