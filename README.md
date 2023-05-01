@@ -1,10 +1,10 @@
 This repository contains Python scripts for manipulating the 
 [monthly data](https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MCD06COSP_M3_MODIS) produced 
 by the MODIS cloud group in support of the MODIS simulator for climate models. The data are described in  
-Pincus et al, 2022: Updated observations of clouds by MODIS for global model assessment, available at 
+Pincus et al, 2023: Updated observations of clouds by MODIS for global model assessment, available at 
 https://crew.ldeo.columbia.edu/people/robert-pincus/
 
-The data record available at the time of this writing extends from July 2002 to May 2022. 
+The data record available at the time of this writing extends from July 2002 to Feb 2023. 
 
 # Downloading data
 

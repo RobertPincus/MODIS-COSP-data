@@ -150,8 +150,6 @@ if saveFigs:
 
 # Differences between mask and retrieval fractions 
 
-Still need to print out mean value of difference
-
 ```{code-cell} ipython3
 sns.set_context("paper")
 fig = plt.figure(figsize = (12, 9))
@@ -313,16 +311,24 @@ fig = plt.figure(figsize = (7.75, 8.9))
 
 cmap = cc.m_blues
 axes = fig.subplots(nrows=3, ncols=2, sharex=True, sharey=True)
+
+def get_joint_histo(v, s=""): 
+    hname = f"Cloud_Optical_Thickness_{v}_vs_Cloud_Top_Pressure"
+    fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
+    gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
+    return(gmh[hname])
+    
 #
 # Joint histograms vs cloud top pressure: (cloudy, partly-cloudy) x (total, liquid, ice)
 # 
+# Normalize the color bar to the figure with the biggest cloud fractions 
+vmax = np.max(get_joint_histo("Total"))
+
 for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subset is partly-cloudy (PCL)
-    for r, v in enumerate(["Ice", "Liquid", "Total"]):
+    for r, v in enumerate(["Total", "Ice", "Liquid"]):
         hname = f"Cloud_Optical_Thickness{s}_{v}_vs_Cloud_Top_Pressure"
         fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
         gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
-        # Normalize the color bar to the figure with the biggest cloud fractions 
-        if v == "Total" and s == "": vmax = np.max(gmh[hname])
         #    
         # imshow() seems to show the first array dimension from top to bottom and the second dimension 
         # from left to right, so we transpose the DataArray before plotting 
@@ -348,11 +354,9 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
             axes[r, i].set_yticks(np.arange(len(jnt_bnds))-.5)
             axes[r, i].set_yticklabels(jnt_bnds.values)
 
-
-
-axes[2,0].annotate("Total",  (0,0))
-axes[1,0].annotate("Liquid", (0,0))
-axes[0,0].annotate("Ice",    (0,0))
+axes[0,0].annotate("Total",  (0,0))
+axes[1,0].annotate("Ice",    (0,0))
+axes[2,0].annotate("Liquid", (0,0))
 axes[0,0].annotate("Fully-cloudy",  (4,0))
 axes[0,1].annotate("Partly-cloudy", (4,0))
 
@@ -371,12 +375,17 @@ axes = fig.subplots(ncols=2, nrows=2, sharex=True)
 #
 # Joint histograms of optical thickness vs particle size 
 # 
+v = "Liquid";  s = ""
+hname = f"Cloud_Optical_Thickness_vs_Cloud_Particle_Size{s}_{v}"
+fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
+gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
+vmax = np.max(gmh[hname])
+
 for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subset is partly-cloudy (PCL)
     for r, v in enumerate(["Ice", "Liquid"]): 
         hname = f"Cloud_Optical_Thickness_vs_Cloud_Particle_Size{s}_{v}"
         fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
         gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
-        if v == "Liquid" and s == "": vmax = np.max(gmh[hname])
         #    
         # imshow() seems to show the first array dimension from top to bottom and the second dimension 
         # from left to right, so we transpose the DataArray before plotting 
@@ -404,8 +413,9 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         axes[r, i].set_yticks(np.arange(len(jnt_bnds))-.5)
         axes[r, i].set_yticklabels(jnt_bnds.values)
         axes[r, i].invert_yaxis()
-axes[1,0].annotate("Liquid",  (0,5))
+
 axes[0,0].annotate("Ice",     (0,5))
+axes[1,0].annotate("Liquid",  (0,5))
 axes[0,0].annotate("Fully-cloudy",  (4,5))
 axes[0,1].annotate("Partly-cloudy", (4,5))
 
@@ -423,12 +433,17 @@ axes = fig.subplots(ncols=2, nrows=2)
 #
 # Joint histograms vs cloud top pressure: (cloudy, partly-cloudy) x (total, liquid, ice)
 # 
+v = "Liquid"; s = "" 
+hname = f"Cloud_Water_Path_vs_Cloud_Particle_Size{s}_{v}"
+fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
+gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
+vmax = np.max(gmh[hname])
+
 for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subset is partly-cloudy (PCL)
     for r, v in enumerate(["Ice", "Liquid"]): 
         hname = f"Cloud_Water_Path_vs_Cloud_Particle_Size{s}_{v}"
         fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
         gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
-        if v == "Liquid" and s == "": vmax = np.max(gmh[hname])
         #    
         # imshow() seems to show the first array dimension from top to bottom and the second dimension 
         # from left to right, so we transpose the DataArray before plotting 
@@ -456,8 +471,8 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         axes[r, i].set_yticklabels(jnt_bnds.values)
         axes[r, i].invert_yaxis()
 
-axes[1,0].annotate("Liquid",  (0,5))
 axes[0,0].annotate("Ice",     (0,5))
+axes[1,0].annotate("Liquid",  (0,5))
 axes[0,0].annotate("Fully-cloudy",  (4,5))
 axes[0,1].annotate("Partly-cloudy", (4,5))
 
@@ -465,8 +480,4 @@ axes[0,1].annotate("Partly-cloudy", (4,5))
 fig.tight_layout()
 fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Cloud fraction")
 fig.savefig(figDir.joinpath("LWP-re-histograms.pdf"), dpi=600, transparent=True, bbox_inches = "tight")
-```
-
-```{code-cell} ipython3
-
 ```

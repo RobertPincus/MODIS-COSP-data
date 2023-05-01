@@ -213,4 +213,6 @@ for host_var in ["Cloud_Optical_Thickness", "Cloud_Water_Path"]:
               print ("  Writing to netcdf")
               temp.to_netcdf(f"modis-cosp-{hname}.nc", encoding={hname:{"zlib": True}})
 
-if write_zarr: all_data.to_zarr("modis-cosp.zarr")
+if write_zarr: 
+    print ("Writing all data to zarr")
+    all_data.to_zarr("modis-cosp.zarr")
