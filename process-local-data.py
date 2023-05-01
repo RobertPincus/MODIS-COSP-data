@@ -9,7 +9,7 @@ import numpy  as np
 
 #
 # Post-process the MODIS-COSP dataset described in 
-#     Pincus et al, 2022: Updated observations of clouds by MODIS for global model assessment
+#     Pincus et al, 2023: Updated observations of clouds by MODIS for global model assessment
 #    (https://crew.ldeo.columbia.edu/people/robert-pincus/)
 #
 # The original data come in netcdf4 files with one group per primary variables 
@@ -22,7 +22,7 @@ import numpy  as np
 write_netcdf = True
 write_zarr   = True 
 
-dates = pd.date_range("2002-07-01", "2022-05-01", freq="MS")  # "MS" for "month start"
+dates = pd.date_range("2002-07-01", "2023-02-01", freq="MS")  # "MS" for "month start"
 cacheDir = Path(os.environ['MODIS_DATA_CACHE_DIR'])
 
 #

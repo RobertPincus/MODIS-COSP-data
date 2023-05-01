@@ -31,3 +31,6 @@ do
   "https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/62/MCD06COSP_M3_MODIS/${yr}/" \
   --header "Authorization: Bearer ${EARTHDATA_TOKEN}" -P ${MODIS_DATA_CACHE_DIR}
 done
+
+# Clean up leftover files
+rm ${MODIS_DATA_CACHE_DIR}/[0-9][0-9][0-9]
