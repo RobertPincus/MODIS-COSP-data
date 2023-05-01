@@ -41,3 +41,5 @@ Figures from the data description paper can be generated from the post-processed
 The notebook is saved in the compact [Jupytext](https://jupytext.readthedocs.io) format, which 
 is installed via `environment.yml`. Starting the Jupyter notebook and setting variables 
 `figDir` and `dataDir` should reproduce the figures. 
+
+[![DOI](https://zenodo.org/badge/523775968.svg)](https://zenodo.org/badge/latestdoi/523775968)
