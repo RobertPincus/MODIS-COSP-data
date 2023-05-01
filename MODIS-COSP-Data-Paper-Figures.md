@@ -126,17 +126,19 @@ month = xr.open_dataset(dataDir.joinpath("modis-cosp-scalars.nc"), engine="netcd
 sns.set_context("paper")
 fig = plt.figure(figsize = (12, 9))
 axes = fig.subplots(nrows=2, subplot_kw={'projection': map_projection()})
+cm = cc.m_gray.copy()
+cm.set_bad("0.85")
 
 # Cloud mask fraction  
 pl = month.Cloud_Mask_Fraction.plot(ax = axes[0], 
                                     transform=ccrs.PlateCarree(),
-                                    cmap = cc.m_gray,
+                                    cmap = cm,
                                     add_colorbar=False)
 axes[0].set_title("Cloud mask fraction, July 2021")
 
 pl = month.Cloud_Retrieval_Fraction_Total.plot(ax = axes[1], 
                                     transform=ccrs.PlateCarree(),
-                                    cmap = cc.m_gray,
+                                    cmap = cm,
                                     add_colorbar=False)
 axes[1].set_title("Cloud retrieval fraction, July 2021")
 fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Cloud fraction")
@@ -154,7 +156,7 @@ Still need to print out mean value of difference
 sns.set_context("paper")
 fig = plt.figure(figsize = (12, 9))
 axes = fig.subplots(nrows=2, subplot_kw={'projection': map_projection()})
-cm = cc.m_CET_L19.copy()
+cm = cc.m_CET_L19.copy().reversed()
 cm.set_bad("0.85")
 
 cf_diff = (month.Cloud_Mask_Fraction - month.Cloud_Retrieval_Fraction_Total)
@@ -242,21 +244,23 @@ axes = fig.subplots(nrows=2, subplot_kw={'projection': map_projection()})
 cm = copy.copy(cc.m_CET_CBL1)
 cm.set_bad("0.85")
 # Cloud mask fraction
-rat = (month.Cloud_Retrieval_Fraction_Liquid/month.Cloud_Retrieval_Fraction_Total)
+rat = (month.Cloud_Retrieval_Fraction_Ice/month.Cloud_Retrieval_Fraction_Total)
 pl = rat.plot(ax = axes[0], 
           transform=ccrs.PlateCarree(),
           vmin = 0, vmax =  1, 
           cmap = cm, 
           add_colorbar=False)
-axes[0].set_title("Fraction of clouds that are liquid, July 2021")
+axes[0].set_title("Fraction of clouds that are ice, July 2021")
 
-rat = (month.Cloud_Retrieval_Fraction_Ice/month.Cloud_Retrieval_Fraction_Total)
+
+
+rat = (month.Cloud_Retrieval_Fraction_Liquid/month.Cloud_Retrieval_Fraction_Total)
 pl = rat.plot(ax = axes[1], 
           transform=ccrs.PlateCarree(),
           vmin = 0, vmax =  1, 
           cmap = cm, 
           add_colorbar=False)
-axes[1].set_title("Fraction of clouds that are ice, July 2021")
+axes[1].set_title("Fraction of clouds that are liquid, July 2021")
 
 fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Cloud fraction")
 
@@ -313,7 +317,7 @@ axes = fig.subplots(nrows=3, ncols=2, sharex=True, sharey=True)
 # Joint histograms vs cloud top pressure: (cloudy, partly-cloudy) x (total, liquid, ice)
 # 
 for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subset is partly-cloudy (PCL)
-    for r, v in enumerate(["Total", "Liquid", "Ice"]):
+    for r, v in enumerate(["Ice", "Liquid", "Total"]):
         hname = f"Cloud_Optical_Thickness{s}_{v}_vs_Cloud_Top_Pressure"
         fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
         gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
@@ -339,16 +343,16 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         #
         if i==0: 
             jnt_var  = [           k for k in gmh.coords if "optical_thickness" not in k and "bnds" in k][0]
-            axes[r, i].set_ylabel(jnt_var.replace("bnds", "").replace("_", ""))
+            axes[r, i].set_ylabel(jnt_var.replace("bnds", "").replace("_", " ") + "(hPa)")
             jnt_bnds = gmh[jnt_var] 
             axes[r, i].set_yticks(np.arange(len(jnt_bnds))-.5)
             axes[r, i].set_yticklabels(jnt_bnds.values)
 
 
 
-axes[0,0].annotate("Total",  (0,0))
+axes[2,0].annotate("Total",  (0,0))
 axes[1,0].annotate("Liquid", (0,0))
-axes[2,0].annotate("Ice",    (0,0))
+axes[0,0].annotate("Ice",    (0,0))
 axes[0,0].annotate("Fully-cloudy",  (4,0))
 axes[0,1].annotate("Partly-cloudy", (4,0))
 
@@ -368,7 +372,7 @@ axes = fig.subplots(ncols=2, nrows=2, sharex=True)
 # Joint histograms of optical thickness vs particle size 
 # 
 for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subset is partly-cloudy (PCL)
-    for r, v in enumerate(["Liquid", "Ice"]): 
+    for r, v in enumerate(["Ice", "Liquid"]): 
         hname = f"Cloud_Optical_Thickness_vs_Cloud_Particle_Size{s}_{v}"
         fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
         gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
@@ -394,13 +398,14 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         # y axis labels - need separately for each column 
         #
         jnt_var  = [           k for k in gmh.coords if "optical_thickness" not in k  and "bnds" in k][0]
-        axes[r, i].set_ylabel(jnt_var.replace("bin_boundaries", "").replace("_", " ").replace(" pcl", ""))
+        axes[r, i].set_ylabel(jnt_var.replace("cloud","").replace("bnds", "").replace("_", " ").replace(" pcl", "") + 
+                              " ($\mu$m)")
         jnt_bnds = gmh[jnt_var] 
         axes[r, i].set_yticks(np.arange(len(jnt_bnds))-.5)
         axes[r, i].set_yticklabels(jnt_bnds.values)
         axes[r, i].invert_yaxis()
-axes[0,0].annotate("Liquid",  (0,5))
-axes[1,0].annotate("Ice",     (0,5))
+axes[1,0].annotate("Liquid",  (0,5))
+axes[0,0].annotate("Ice",     (0,5))
 axes[0,0].annotate("Fully-cloudy",  (4,5))
 axes[0,1].annotate("Partly-cloudy", (4,5))
 
@@ -419,7 +424,7 @@ axes = fig.subplots(ncols=2, nrows=2)
 # Joint histograms vs cloud top pressure: (cloudy, partly-cloudy) x (total, liquid, ice)
 # 
 for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subset is partly-cloudy (PCL)
-    for r, v in enumerate(["Liquid", "Ice"]): 
+    for r, v in enumerate(["Ice", "Liquid"]): 
         hname = f"Cloud_Water_Path_vs_Cloud_Particle_Size{s}_{v}"
         fname = dataDir.joinpath(f"modis-cosp-{hname}.nc")
         gmh = global_mean(xr.open_dataset(fname).sel(date=sample_month))
@@ -444,14 +449,15 @@ for i, s in enumerate(["", "_PCL"]): # Top row/subset is cloudy, bottom row/subs
         # y axis labels - need separately for each column 
         #
         jnt_var  = [           k for k in gmh.coords if "cloud_particle"     in k  and "bnds" in k][0]
-        axes[r, i].set_ylabel(jnt_var.replace("bnds", "").replace("_", " ").replace(" pcl", ""))
+        axes[r, i].set_ylabel(jnt_var.replace("cloud","").replace("bnds", "").replace("_", " ").replace(" pcl", "") + 
+                              " ($\mu$m)")
         jnt_bnds = gmh[jnt_var] 
         axes[r, i].set_yticks(np.arange(len(jnt_bnds))-.5)
         axes[r, i].set_yticklabels(jnt_bnds.values)
         axes[r, i].invert_yaxis()
 
-        axes[0,0].annotate("Liquid",  (0,5))
-axes[1,0].annotate("Ice",     (0,5))
+axes[1,0].annotate("Liquid",  (0,5))
+axes[0,0].annotate("Ice",     (0,5))
 axes[0,0].annotate("Fully-cloudy",  (4,5))
 axes[0,1].annotate("Partly-cloudy", (4,5))
 
@@ -459,4 +465,8 @@ axes[0,1].annotate("Partly-cloudy", (4,5))
 fig.tight_layout()
 fig.colorbar(pl, ax=axes.ravel().tolist(), shrink = 0.75, aspect = 15, label="Cloud fraction")
 fig.savefig(figDir.joinpath("LWP-re-histograms.pdf"), dpi=600, transparent=True, bbox_inches = "tight")
+```
+
+```{code-cell} ipython3
+
 ```

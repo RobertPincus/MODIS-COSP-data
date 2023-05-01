@@ -15,7 +15,7 @@
 #
 #  The downloaded data may then be post-processed with 'process-local-data.py' to remove unneeded fields and 
 #     normalize joint histograms (convert from counts to cloud fractions)
-#  See Pincus et al, 2022: Updated observations of clouds by MODIS for global model assessment
+#  See Pincus et al, 2023: Updated observations of clouds by MODIS for global model assessment
 #    (https://crew.ldeo.columbia.edu/people/robert-pincus/)
 #
 # Sample daily file
@@ -24,7 +24,7 @@ wget -e robots=off -m -nv -np -R .html,.tmp,.csv,.json -nd --cut-dirs=1 \
    --header "Authorization: Bearer ${EARTHDATA_TOKEN}" -P ${MODIS_DATA_CACHE_DIR}
 
 # All monthly files, year-by-year 
-for yr in {2002..2022..1}
+for yr in {2002..2023..1}
 do
   echo "Downloading $yr"
   wget -e robots=off -m -nv -np -R .html,.tmp,.csv,.json -nd --cut-dirs=2 \
